@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pomodoro Timer</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f5f5f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    #pomo {
+      background: #fff;
+      border-radius: 20px;
+      padding: 2rem 1.5rem;
+      max-width: 360px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 1.25rem;
+      letter-spacing: -0.3px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .tab {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid #ddd;
+      font-size: 13px;
+      cursor: pointer;
+      background: transparent;
+      color: #666;
+      transition: all .15s;
+    }
+
+    .tab.active {
+      background: #e8f0fb;
+      color: #185fa5;
+      border-color: transparent;
+      font-weight: 500;
+    }
+
+    .ring-wrap {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      margin: 0 auto 1.5rem;
+    }
+
+    .ring-wrap svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform: rotate(-90deg);
+    }
+
+    .timer-display {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .timer-num {
+      font-size: 48px;
+      font-weight: 500;
+      color: #222;
+      letter-spacing: -1px;
+    }
+
+    .timer-label {
+      font-size: 13px;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn {
+      padding: 10px 24px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      background: transparent;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+      transition: background .15s;
+    }
+
+    .btn:hover {
+      background: #f5f5f0;
+    }
+
+    .btn.primary {
+      background: #e8f0fb;
+      color: #185fa5;
+      border-color: transparent;
+    }
+
+    .btn.primary:hover {
+      opacity: .85;
+    }
+
+    .cycles {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 1.25rem;
+    }
+
+    .dots {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-top: 8px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 1px solid #ccc;
+      background: transparent;
+      transition: background .2s;
+    }
+
+    .dot.done {
+      background: #378ADD;
+      border-color: transparent;
+    }
+
+    .settings {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid #eee;
+    }
+
+    .setting {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: #888;
+    }
+
+    .setting input {
+      width: 54px;
+      text-align: center;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 4px 6px;
+      font-size: 13px;
+      background: #fff;
+      color: #333;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="pomo">
+    <h1>🍅 Pomodoro</h1>
+    <div class="tabs">
+      <button class="tab active" onclick="setMode('focus')">Foco</button>
+      <button class="tab" onclick="setMode('short')">Pausa curta</button>
+      <button class="tab" onclick="setMode('long')">Pausa longa</button>
+    </div>
+
+    <div class="ring-wrap">
+      <svg width="220" height="220" viewBox="0 0 220 220">
+        <circle cx="110" cy="110" r="96" fill="none" stroke="#eee" stroke-width="10" />
+        <circle id="progress-ring" cx="110" cy="110" r="96" fill="none" stroke="#378ADD" stroke-width="10"
+          stroke-linecap="round" stroke-dasharray="603" stroke-dashoffset="0"
+          style="transition: stroke-dashoffset .5s, stroke .3s;" />
+      </svg>
+      <div class="timer-display">
+        <span class="timer-num" id="timer-num">25:00</span>
+        <span class="timer-label" id="timer-label">Hora de focar</span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn" onclick="resetTimer()">Resetar</button>
+      <button class="btn primary" id="start-btn" onclick="toggleTimer()">Iniciar</button>
+      <button class="btn" onclick="skipTimer()">Pular</button>
+    </div>
+
+    <div class="cycles">
+      <div>Ciclos completos: <strong id="cycle-count">0</strong></div>
+      <div class="dots" id="dots-row"></div>
+    </div>
+
+    <div class="settings">
+      <div class="setting"><span>Foco (min)</span><input type="number" id="s-focus" value="25" min="1" max="60"
+          onchange="updateSettings()" /></div>
+      <div class="setting"><span>Pausa curta</span><input type="number" id="s-short" value="5" min="1" max="30"
+          onchange="updateSettings()" /></div>
+      <div class="setting"><span>Pausa longa</span><input type="number" id="s-long" value="15" min="1" max="60"
+          onchange="updateSettings()" /></div>
+    </div>
+  </div>
+
+  <script>
+    const MODES = { focus: { label: 'Hora de focar', color: '#378ADD' }, short: { label: 'Pausa curta', color: '#1D9E75' }, long: { label: 'Pausa longa', color: '#D85A30' } };
+    let durations = { focus: 25 * 60, short: 5 * 60, long: 15 * 60 };
+    let mode = 'focus', timeLeft = durations.focus, running = false, interval = null, cycles = 0;
+
+    const ring = document.getElementById('progress-ring');
+    const CIRC = 2 * Math.PI * 96;
+    ring.style.strokeDasharray = CIRC;
+
+    function fmt(s) { return `${ String(Math.floor(s / 60)).padStart(2, '0') }:${ String(s % 60).padStart(2, '0') }`; }
+
+    function render() {
+      document.getElementById('timer-num').textContent = fmt(timeLeft);
+      const offset = CIRC * (1 - timeLeft / durations[mode]);
+      ring.style.strokeDashoffset = offset;
+      ring.style.stroke = MODES[mode].color;
+      document.getElementById('timer-label').textContent = MODES[mode].label;
+      document.title = fmt(timeLeft) + ' — Pomodoro';
+    }
+
+    function setMode(m) {
+      mode = m; timeLeft = durations[m]; running = false; clearInterval(interval);
+      document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', ['focus', 'short', 'long'][i] === m));
+      document.getElementById('start-btn').textContent = 'Iniciar';
+      render();
+    }
+
+    function toggleTimer() {
+      if(running) { running = false; clearInterval(interval); document.getElementById('start-btn').textContent = 'Continuar'; }
+      else {
+        running = true; document.getElementById('start-btn').textContent = 'Pausar';
+        interval = setInterval(() => {
+          if(timeLeft > 0) { timeLeft--; render(); }
+          else { clearInterval(interval); running = false; notify(); autoNext(); }
+        }, 1000);
+      }
+    }
+
+    function resetTimer() { running = false; clearInterval(interval); timeLeft = durations[mode]; document.getElementById('start-btn').textContent = 'Iniciar'; render(); }
+
+    function skipTimer() { running = false; clearInterval(interval); timeLeft = 0; autoNext(); }
+
+    function autoNext() {
+      if(mode === 'focus') { cycles++; document.getElementById('cycle-count').textContent = cycles; renderDots(); setMode(cycles % 4 === 0 ? 'long' : 'short'); }
+      else setMode('focus');
+    }
+
+    function notify() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = ctx.createOscillator(); const g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.frequency.value = mode === 'focus' ? 660 : 440;
+        g.gain.setValueAtTime(0.4, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+        o.start(); o.stop(ctx.currentTime + 0.8);
+      } catch(e) { }
+    }
+
+    function renderDots() {
+      const row = document.getElementById('dots-row');
+      row.innerHTML = '';
+      const filled = cycles % 4 === 0 && cycles > 0 ? 4 : cycles % 4;
+      for(let i = 0; i < 4; i++) { const d = document.createElement('div'); d.className = 'dot' + (i < filled ? ' done' : ''); row.appendChild(d); }
+    }
+
+    function updateSettings() {
+      durations.focus = (parseInt(document.getElementById('s-focus').value) || 25) * 60;
+      durations.short = (parseInt(document.getElementById('s-short').value) || 5) * 60;
+      durations.long = (parseInt(document.getElementById('s-long').value) || 15) * 60;
+      resetTimer();
+    }
+
+    renderDots(); render();
+  </script>
+</body>
+
+</html>
