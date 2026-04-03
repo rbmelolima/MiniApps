@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Lato', sans-serif;
+      background: #f9f8f6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #app {
+      max-width: 780px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+      flex: 1;
+    }
+
+    .editor-block {
+      position: relative;
+      min-height: 32px;
+      margin-bottom: 2px;
+      cursor: text;
+    }
+
+    .editor-block .rendered {
+      font-family: 'Lato', sans-serif;
+      font-size: 16px;
+      line-height: 1.75;
+      color: #1a1a1a;
+      min-height: 28px;
+      padding: 2px 0;
+      word-break: break-word;
+    }
+
+    .editor-block .rendered h1 {
+      font-size: 2em;
+      font-weight: 700;
+      margin: 0.6em 0 0.2em;
+      line-height: 1.2;
+    }
+
+    .editor-block .rendered h2 {
+      font-size: 1.5em;
+      font-weight: 700;
+      margin: 0.5em 0 0.2em;
+      line-height: 1.3;
+    }
+
+    .editor-block .rendered h3 {
+      font-size: 1.2em;
+      font-weight: 700;
+      margin: 0.4em 0 0.1em;
+    }
+
+    .editor-block .rendered p {
+      margin: 0;
+    }
+
+    .editor-block .rendered strong {
+      font-weight: 700;
+    }
+
+    .editor-block .rendered em {
+      font-style: italic;
+    }
+
+    .editor-block .rendered code {
+      font-family: 'Courier New', monospace;
+      background: #efefef;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.88em;
+    }
+
+    .editor-block .rendered pre {
+      background: #f0efed;
+      padding: 12px 14px;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin: 4px 0;
+    }
+
+    .editor-block .rendered pre code {
+      background: none;
+      padding: 0;
+    }
+
+    .editor-block .rendered ul,
+    .editor-block .rendered ol {
+      padding-left: 1.4em;
+      margin: 2px 0;
+    }
+
+    .editor-block .rendered blockquote {
+      border-left: 3px solid #ccc;
+      padding-left: 12px;
+      color: #666;
+      margin: 4px 0;
+    }
+
+    .editor-block .rendered a {
+      color: #2563eb;
+    }
+
+    .editor-block .rendered hr {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 8px 0;
+    }
+
+    .editor-block textarea {
+      font-family: 'Lato', monospace;
+      font-size: 15px;
+      line-height: 1.75;
+      color: #555;
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
+      width: 100%;
+      padding: 2px 0;
+      min-height: 28px;
+      overflow: hidden;
+    }
+
+    #new-block-area {
+      min-height: 100px;
+      cursor: text;
+      padding: 8px 0;
+    }
+
+    .status {
+      position: fixed;
+      bottom: 20px;
+      right: 24px;
+      font-size: 12px;
+      color: #aaa;
+      font-family: 'Lato', sans-serif;
+      transition: opacity 0.4s;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div id="blocks-container"></div>
+    <div id="new-block-area"></div>
+  </div>
+  <div class="status" id="status">salvo</div>
+
+  <script>
+    const container = document.getElementById('blocks-container');
+    const newArea = document.getElementById('new-block-area');
+    const statusEl = document.getElementById('status');
+
+    let blocks = [];
+    let saveTimer = null;
+
+    marked.setOptions({ breaks: true, gfm: true });
+
+    function renderMD(text) {
+      return marked.parse(text || '');
+    }
+
+    function autoResize(ta) {
+      ta.style.height = 'auto';
+      ta.style.height = ta.scrollHeight + 'px';
+    }
+
+    function showStatus(msg) {
+      statusEl.textContent = msg;
+      statusEl.style.opacity = '1';
+      clearTimeout(saveTimer);
+      if(msg === 'salvo') {
+        setTimeout(() => { statusEl.style.opacity = '0'; }, 2000);
+      }
+    }
+
+    function saveAll() {
+      const data = blocks.map(b => b.text);
+      try {
+        sessionStorage.setItem('md_notes', JSON.stringify(data));
+      } catch(e) { }
+      showStatus('salvo');
+    }
+
+    function scheduleSave() {
+      showStatus('salvando...');
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(saveAll, 800);
+    }
+
+    function createBlock(text, insertAfterIndex) {
+      const block = { text: text || '', el: null, rendered: null, textarea: null };
+
+      const el = document.createElement('div');
+      el.className = 'editor-block';
+
+      const rendered = document.createElement('div');
+      rendered.className = 'rendered';
+      rendered.innerHTML = renderMD(block.text);
+
+      const textarea = document.createElement('textarea');
+      textarea.value = block.text;
+      textarea.style.display = 'none';
+      textarea.rows = 1;
+      textarea.spellcheck = true;
+
+      el.appendChild(rendered);
+      el.appendChild(textarea);
+
+      block.el = el;
+      block.rendered = rendered;
+      block.textarea = textarea;
+
+      el.addEventListener('click', () => activateBlock(block));
+
+      textarea.addEventListener('input', () => {
+        block.text = textarea.value;
+        autoResize(textarea);
+        scheduleSave();
+      });
+
+      textarea.addEventListener('blur', () => {
+        deactivateBlock(block);
+      });
+
+      textarea.addEventListener('keydown', e => {
+        if(e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          const idx = blocks.indexOf(block);
+          const nb = createBlock('', idx);
+          activateBlock(nb);
+          nb.textarea.focus();
+        }
+        if(e.key === 'Backspace' && textarea.value === '') {
+          e.preventDefault();
+          const idx = blocks.indexOf(block);
+          if(idx > 0) {
+            const prev = blocks[idx - 1];
+            removeBlock(block);
+            activateBlock(prev);
+            prev.textarea.focus();
+            const len = prev.textarea.value.length;
+            prev.textarea.setSelectionRange(len, len);
+          }
+        }
+      });
+
+      if(typeof insertAfterIndex === 'number') {
+        const afterBlock = blocks[insertAfterIndex];
+        afterBlock.el.insertAdjacentElement('afterend', el);
+        blocks.splice(insertAfterIndex + 1, 0, block);
+      } else {
+        container.appendChild(el);
+        blocks.push(block);
+      }
+
+      return block;
+    }
+
+    function activateBlock(block) {
+      block.rendered.style.display = 'none';
+      block.textarea.style.display = 'block';
+      autoResize(block.textarea);
+      block.textarea.focus();
+    }
+
+    function deactivateBlock(block) {
+      block.rendered.innerHTML = renderMD(block.text);
+      if(block.text.trim() === '') {
+        block.rendered.innerHTML = '';
+      }
+      block.textarea.style.display = 'none';
+      block.rendered.style.display = 'block';
+    }
+
+    function removeBlock(block) {
+      const idx = blocks.indexOf(block);
+      if(idx > -1) {
+        block.el.remove();
+        blocks.splice(idx, 1);
+      }
+    }
+
+    newArea.addEventListener('click', () => {
+      const nb = createBlock('');
+      activateBlock(nb);
+      nb.textarea.focus();
+    });
+
+    function loadSaved() {
+      try {
+        const data = JSON.parse(sessionStorage.getItem('md_notes') || '[]');
+        if(data.length > 0) {
+          data.forEach(text => createBlock(text));
+          return;
+        }
+      } catch(e) { }
+      createBlock('# Minhas notas\n\nComece a escrever aqui...');
+    }
+
+    loadSaved();
+    statusEl.style.opacity = '0';
+  </script>
+</body>
+
+</html>
