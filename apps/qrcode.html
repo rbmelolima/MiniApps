@@ -5,22 +5,62 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gerador de QR Code</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
-    * {
+    *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
     body {
-      font-family: system-ui, sans-serif;
+      font-family: 'Lato', sans-serif;
       background: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      color: #1a1a1a;
+    }
+
+    .app-nav {
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .nav-back {
+      font-size: 13px;
+      font-weight: 700;
+      color: #e63946;
+      text-decoration: none;
+      letter-spacing: 0.2px;
+    }
+
+    .nav-back:hover {
+      opacity: 0.75;
+    }
+
+    .nav-sep {
+      color: #ccc;
+      font-size: 14px;
+    }
+
+    .nav-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .content {
+      flex: 1;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
-      padding: 20px;
+      padding: 32px 20px;
     }
 
     .card {
@@ -29,29 +69,32 @@
       padding: 32px;
       width: 100%;
       max-width: 420px;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
     }
 
     h1 {
-      font-size: 1.4rem;
-      color: #111;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #1a1a1a;
       margin-bottom: 24px;
     }
 
     textarea {
       width: 100%;
-      border: 1.5px solid #ddd;
+      border: 1.5px solid #e0e0e0;
       border-radius: 10px;
       padding: 12px;
       font-size: 1rem;
+      font-family: 'Lato', sans-serif;
       resize: vertical;
       min-height: 80px;
       outline: none;
       transition: border-color .2s;
+      color: #1a1a1a;
     }
 
     textarea:focus {
-      border-color: #6c63ff;
+      border-color: #e63946;
     }
 
     button {
@@ -61,18 +104,19 @@
       border: none;
       border-radius: 10px;
       font-size: 1rem;
+      font-family: 'Lato', sans-serif;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 700;
       transition: background .2s, transform .1s;
     }
 
     #btnGerar {
-      background: #6c63ff;
+      background: #e63946;
       color: white;
     }
 
     #btnGerar:hover {
-      background: #574fd6;
+      background: #c1121f;
     }
 
     #btnGerar:active {
@@ -104,14 +148,22 @@
 </head>
 
 <body>
-  <div class="card">
-    <h1>🔳 Gerador de QR Code</h1>
-    <textarea id="txt" placeholder="Digite um texto ou URL..."></textarea>
-    <button id="btnGerar" onclick="gerar()">Gerar QR Code</button>
-    <div id="qr-wrap">
-      <div id="qrcode"></div>
+  <nav class="app-nav">
+    <a href="../index.html" class="nav-back">← MiniApps</a>
+    <span class="nav-sep">/</span>
+    <span class="nav-title">QR Code</span>
+  </nav>
+
+  <div class="content">
+    <div class="card">
+      <h1>🔳 Gerador de QR Code</h1>
+      <textarea id="txt" placeholder="Digite um texto ou URL..."></textarea>
+      <button id="btnGerar" onclick="gerar()">Gerar QR Code</button>
+      <div id="qr-wrap">
+        <div id="qrcode"></div>
+      </div>
+      <button id="btnBaixar" onclick="baixar()">⬇ Baixar imagem</button>
     </div>
-    <button id="btnBaixar" onclick="baixar()">⬇ Baixar imagem</button>
   </div>
 
   <script>
