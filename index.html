@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MiniApps</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Lato', sans-serif;
+      background: #f5f5f5;
+      min-height: 100vh;
+      color: #1a1a1a;
+    }
+
+    header {
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 28px 24px 24px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+    }
+
+    header h1 span {
+      color: #e63946;
+    }
+
+    header p {
+      font-size: 15px;
+      color: #666;
+      margin-top: 6px;
+    }
+
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 24px 60px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .app-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 24px;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      border: 1px solid #e8e8e8;
+      transition: transform .15s, box-shadow .15s;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .app-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .app-icon {
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .app-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .app-desc {
+      font-size: 13px;
+      color: #777;
+      line-height: 1.5;
+    }
+
+    .app-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      color: #e63946;
+      background: #fdecea;
+      border-radius: 6px;
+      padding: 2px 8px;
+      letter-spacing: 0.3px;
+      align-self: flex-start;
+      margin-top: auto;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 12px;
+      color: #bbb;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Mini<span>Apps</span></h1>
+    <p>Ferramentas simples, direto ao ponto.</p>
+  </header>
+
+  <main>
+    <div class="grid">
+      <a class="app-card" href="apps/notes.html">
+        <div class="app-icon">📝</div>
+        <div class="app-name">Notas</div>
+        <div class="app-desc">Editor de notas em Markdown com blocos editáveis e salvamento automático.</div>
+        <span class="app-tag">Produtividade</span>
+      </a>
+
+      <a class="app-card" href="apps/pomodoro.html">
+        <div class="app-icon">🍅</div>
+        <div class="app-name">Pomodoro</div>
+        <div class="app-desc">Timer Pomodoro com foco, pausas curtas e longas, e controle de ciclos.</div>
+        <span class="app-tag">Foco</span>
+      </a>
+
+      <a class="app-card" href="apps/qrcode.html">
+        <div class="app-icon">🔳</div>
+        <div class="app-name">QR Code</div>
+        <div class="app-desc">Gere QR codes a partir de qualquer texto ou URL e baixe como imagem PNG.</div>
+        <span class="app-tag">Utilidade</span>
+      </a>
+    </div>
+  </main>
+
+  <footer>MiniApps &mdash; feito com simplicidade.</footer>
+</body>
+
+</html>
